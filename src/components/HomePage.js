@@ -57,10 +57,10 @@ const HomePage = () => {
         })
       }
       useEffect(() => {
-        const token = localStorage.getItem('token');
-        if(!token) {
-            navigate('/');
-        }
+        // const token = localStorage.getItem('token');
+        // if(!token) {
+        //     navigate('/');
+        // }
         const placeHistory = placeapi.getPlace({item:2})
         placeHistory.then((result)=>{
           setposition(result.data)

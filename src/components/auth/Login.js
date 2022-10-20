@@ -32,12 +32,12 @@ export const Login = () => {
         
         
       }
-      useEffect(() => {
-        const token = localStorage.getItem('token');
-        if(token) {
-            navigate('/homepage');
-        }
-      })
+    //   useEffect(() => {
+    //     const token = localStorage.getItem('token');
+    //     if(token) {
+    //         navigate('/homepage');
+    //     }
+    //   })
 
 
   return (
