@@ -1,83 +1,74 @@
-import React,{useState } from 'react'
+import React, { useState} from 'react'
 import { Link,useNavigate } from 'react-router-dom'
+import { Formik,Form} from 'formik';
 import store, { storeToken } from '../../store';
+import { TextFild } from './TextFild';
+import * as yup from 'yup';
 import authapi from '../../api/authapi';
-const Register = () => {
-    
-    // const [email, password,checkbox] = useState({});
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
-    const [error,setError] = useState([]);
-    const navigate = useNavigate();
 
-    const handleEmialState = (e)=>{
-        setEmail(e.target.value)
+
+export const Register = () => {
+const [error,setError] = useState([]);
+
+  const navigate = useNavigate();
+  let validate =yup.object(
+    {
+      name:yup.string().max(60,'Name can max 60 char')
+      .min(6,'name must be at least 6 char').required('Emial is Required')
+      .matches(/^[aA-zZ1-9\s]+$/, "Only alphabets are allowed for this field "),
+      email: yup.string().email('Emial is invalide').required('Emial is Required'),
+      password: yup.string().min(6,'Password is at least 6 charecter').required('Password is Required')
     }
+  )
 
-    const handlePasswordState = (e)=>{
-        setPassword(e.target.value)
-    }
+  const handleSubmit = (values) => {
+    const data = authapi.register({name:values.name,email:values.email,password:values.password})
+    data.then((result)=>{
+        console.log(result)
+        store.dispatch(storeToken(result.access_token));
+        navigate("/homepage")
+    }).catch(err => {
+        let rerr = JSON.parse(err.request.responseText)
+        let errormessage = []
+        errormessage.push(rerr.message)
+        errormessage.push(rerr.errors.email)
+        errormessage.push(rerr.errors.name)
+        console.log(rerr);
+        setError(errormessage)
+       
+    });
+  }
 
-    const handleNameState = (e)=>{
-        setName(e.target.value)
-    }
+  const initialValues = {
+    name:'',
+    email:'',
+    password:''
+  }
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = authapi.register({name:name,email:email,password:password})
-        data.then((result)=>{
-            console.log(result)
-            store.dispatch(storeToken(result.access_token));
-            navigate("/homepage")
-        }).catch(err => {
-            let rerr = JSON.parse(err.request.responseText)
-            let errormessage = []
-            errormessage.push(rerr.message)
-            errormessage.push(rerr.errors.email)
-            errormessage.push(rerr.errors.name)
-            console.log(rerr);
-            setError(errormessage)
-           
-        });
-      }
-
-    //   console.log(name)
-
-  return (
-    <div className="text-center m-5-auto">
-            <h2>Join us</h2>
-            <h5>Create your personal account</h5>
-                       
-            {error.map((data)=>
+    return (
+        <Formik
+        initialValues={initialValues}
+        validationSchema={validate}
+        onSubmit={(values) => handleSubmit(values,validate) }
+        >
+    {formik=>( 
+       <div>
+           <h1 className='my-4 font-weight-bold-display-4'>Sign Up</h1>
+           {error.map((data)=>
       <h4 style={{color: "red"}} > {data}</h4>
         )}
-
-            <form onSubmit={handleSubmit}>
-                <p>
-                    <label>Username</label><br/>
-                    <input onChange={handleNameState} type="text" name="name" required />
-                </p>
-                <p>
-                    <label>Email address</label><br/>
-                    <input onChange={handleEmialState} type="email" name="email" required />
-                </p>
-                <p>
-                    <label>Password</label><br/>
-                    <input onChange={handlePasswordState} type="password" name="password" required />
-                </p>
-                <p>
-                    <input type="checkbox" name="checkbox" id="checkbox" required /> <span>I agree all statements in <a href="https://google.com" target="_blank" rel="noopener noreferrer">terms of service</a></span>.
-                </p>
-                <p>
-                    <button id="sub_btn" type="submit" >Register</button>
-                </p>
-            </form>
-            <footer>
-                <p><Link to="/">Back to Homepage</Link>.</p>
-            </footer>
-        </div>
-  )
+          <Form>
+        <TextFild  label="Name" name="name" type="text"/>
+         <TextFild  label="Emial" name="email" type="email"/>
+         <TextFild label="Password" name="password" type="password"/>
+         <button className='btn btn-dark mt-3' type='submit'>Submit</button>
+          <p><Link to="/">Back to Homepage</Link>.</p>
+         </Form>
+         
+       </div>
+    )} 
+        </Formik>
+      )
 }
 
 export default Register

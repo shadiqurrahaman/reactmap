@@ -1,7 +1,6 @@
 // 1.paginate with perpage
 // 2.paginate next not working properly
 // 3. add red border and error message on every input
-// 4. protected Route
 // 5. formik & yup validation
 // 6. include saga & redux 
 
@@ -57,10 +56,6 @@ const HomePage = () => {
         })
       }
       useEffect(() => {
-        // const token = localStorage.getItem('token');
-        // if(!token) {
-        //     navigate('/');
-        // }
         const placeHistory = placeapi.getPlace({item:2})
         placeHistory.then((result)=>{
           setposition(result.data)

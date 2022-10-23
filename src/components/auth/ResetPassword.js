@@ -1,31 +1,27 @@
-import React,{useState } from 'react'
+import React, { useState } from 'react'
+import { Link,useNavigate,useParams } from 'react-router-dom'
+import { Formik,Form} from 'formik';
+import store, { storeToken } from '../../store';
+import { TextFild } from './TextFild';
+import * as yup from 'yup';
 import authapi from '../../api/authapi';
-import { Link, useParams } from 'react-router-dom';
-
 export const ResetPassword = () => {
 
-    const [email, setEmail] = useState("");
-    const [password, setpassword] = useState("");
-    const [confirmPass, setconfirmPass] = useState("");
-    const [message, setMessage] = useState("");
     let { token } = useParams();
-    console.log(token)
-    const handleEmialState = (e)=>{
-        setEmail(e.target.value)
-    }
+    const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
-    const handlepassword = (e)=>{
-        setpassword(e.target.value)
+  let validate =yup.object(
+    {
+      email: yup.string().email('Emial is invalide').required('Emial is Required'),
+      password: yup.string().min(6,'Password is at least 6 charecter').required('Password is Required'),
+      confirmpassword:yup.string().min(6,'Confirm Password is at least 6 charecter').required('Confirm Password is Required')
     }
+  )
 
-    const handleConfirmPass = (e)=>{
-        setconfirmPass(e.target.value)
-    }
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if(password===confirmPass){
-        authapi.changepassword({email:email,password:password,token:token})
+  const handleSubmit = (values) => {
+    if(values.password===values.confirmpassword){
+        authapi.changepassword({email:values.email,password:values.password,token:token})
         .then((result)=>{
             setMessage('Password Update Successfull')
         }).catch((err)=>{
@@ -34,30 +30,36 @@ export const ResetPassword = () => {
     }else{
         setMessage('Something went Wrong')
     }
+  }
 
-
-      }
-    
-  return (
-    <><div>ResetPassword</div>
-    <h1>{message}</h1>
-    <form onSubmit={handleSubmit}>
-          <p>
-              <label id="reset_pass_lbl">Email address</label><br />
-              <input onChange={handleEmialState} type="email" name="email" required />
-          </p>
-          <p>
-              <label id="reset_pass_lbl">Password</label><br />
-              <input onChange={handlepassword} type="password" name="email" required />
-          </p>
-          <p>
-              <label id="reset_pass_lbl">Confirm password</label><br />
-              <input onChange={handleConfirmPass} type="password" name="email" required />
-          </p>
-          <p>
-              <button id="sub_btn" type="submit">Send password reset email</button>
-          </p>
-          <p><Link to="/">Back to Homepage</Link>.</p>
-      </form></>
-  )
+  const initialValues = {
+    email:'',
+    password:'',
+    confirmpassword:''
+  }
+    return (
+        <Formik
+        initialValues={initialValues}
+        validationSchema={validate}
+        onSubmit={(values) => handleSubmit(values,validate) }
+        >
+    {formik=>( 
+       <div>
+           <h1 className='my-4 font-weight-bold-display-4'>Set New Password</h1>
+           <h4 style={{color: "red"}} > {message}</h4>
+          <Form>
+         <TextFild  label="Emial" name="email" type="email"/>
+         <TextFild label="Password" name="password" type="password"/>
+         <TextFild label="Confirm Password" name="confirmpassword" type="password"/>
+         <button className='btn btn-dark mt-3' type='submit'>Sign In</button>
+         <p><Link to="/">Back to Homepage</Link>.</p>
+      
+         </Form>
+         
+       </div>
+    )} 
+        </Formik>
+      )
 }
+
+export default ResetPassword
