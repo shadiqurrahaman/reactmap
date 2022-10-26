@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
 import { Link,useNavigate } from 'react-router-dom'
 import { Formik,Form} from 'formik';
-import store, { storeToken } from '../../store';
+// import store, { storeToken } from '../../store';
 import { TextFild } from './TextFild';
 import * as yup from 'yup';
 import authapi from '../../api/authapi';
+// import store from '../../store';
+import { setToken } from '../../store/saga';
+import {useSelector,useDispatch } from 'react-redux';
+import { loginUser } from '../../store/actions';
 
 
 export const Login = () => {
   const [error,setError] = useState([]);
+   const dispatch = useDispatch()
   const navigate = useNavigate();
   let validate =yup.object(
     {
@@ -16,11 +21,20 @@ export const Login = () => {
       password: yup.string().min(6,'Password is at least 6 charecter').required('Password is Required')
     }
   )
+  // const selectedData = useSelector((state)=>{
+  //   if(state.token){
+  //    console.log(state)
+  //   }
+  // })
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
+
+    // dispatch(loginUser(values))
+  
         const data = authapi.login({email:values.email,password:values.password});
         data.then((result)=>{
-            store.dispatch(storeToken(result.access_token));
+            // store.dispatch(storeToken(result.access_token));
+            dispatch(loginUser(result.access_token))
             navigate("/homepage")
         }).catch(err => {
             console.log(err.response.data.error);

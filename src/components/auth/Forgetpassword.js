@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link} from 'react-router-dom'
 import { Formik,Form} from 'formik';
-import store, { storeToken } from '../../store';
+import store, { storeToken } from '../../store/actions';
 import { TextFild } from './TextFild';
 import * as yup from 'yup';
 import authapi from '../../api/authapi';

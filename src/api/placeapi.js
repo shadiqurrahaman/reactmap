@@ -13,7 +13,7 @@ export default {
     getPlace: (payload) =>
     instance({
         'method':'GET',
-        'url':'place/'+payload.item,
+        'url':'place/per_page='+payload.item,
         'headers': {
             'content-type':'application/json',
             'Authorization': 'bearer '+localStorage.getItem('token')

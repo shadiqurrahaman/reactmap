@@ -10,9 +10,13 @@
 import React,{useState,useEffect } from 'react'
 import GoogleMapReact from 'google-map-react';
 import {useNavigate } from 'react-router-dom';
-import store, { removeToken } from '../store';
+// import store, { removeToken } from '../store';
 import authapi from '../api/authapi';
 import placeapi from '../api/placeapi';
+import {useSelector,useDispatch } from 'react-redux';
+import { logout } from '../store/actions';
+import store from '../store';
+
 
 
 const HomePage = () => {
@@ -20,11 +24,12 @@ const HomePage = () => {
       const [place, setPlace] = useState("");
       const [searchplace, setSearchPlace] = useState("");
       const [position, setposition] = useState([]);
-      const [links, setLinks] = useState([]);
+      const [nextLinks, setnextLinks] = useState('');
+      const [prevLinks, setprevLinks] = useState('');
       const [pages, setpages] = useState("");
       const [currentpages, setcurrentpages] = useState("");
       const [successMessage, setsuccessMessage] = useState("");
-
+      const dispatch = useDispatch()
       const defaultProps = {
         center: {
           lat: 23.8314839,
@@ -32,35 +37,52 @@ const HomePage = () => {
         },
         zoom: 11
       };
+
+      // const selectedData = useSelector((state)=>{
+      //   if(state.token){
+      //     navigate("/")
+      //   }
+      // })
+      console.log("home")
+      console.log(store.getState())
+
       const handlePage=(parama)=>{
         var urlparma = ''
-        if(parama==='predious' && currentpages>1){
-          urlparma = links[currentpages-1].url
-        }else if(parama==='next' && currentpages<pages){
-          urlparma = links[currentpages+1].url
+        if(parama==='predious' && prevLinks!=null){
+          urlparma = prevLinks
+        }else if(parama==='next' && nextLinks!==null){
+          urlparma = nextLinks
         }
+        if (urlparma!==''){
         placeapi.placePaginate({url:urlparma})
           .then((result)=>{
                   setposition(result.data)
                   setcurrentpages(result.current_page)
+                  setnextLinks(result.next_page_url)
+                  setprevLinks(result.prev_page_url)
           })
-        
+        }
       }
 
-      const logout = ()=>{
+      const logoutuser = ()=>{
+        // dispatch({type:'REMOVE_TOKEN'})
+       
         const data = authapi.logout();
         console.log(data);
         data.then((result)=>{
-          store.dispatch(removeToken())
+          dispatch(logout())
           navigate("/")
         })
+
       }
       useEffect(() => {
         const placeHistory = placeapi.getPlace({item:2})
         placeHistory.then((result)=>{
           setposition(result.data)
           setpages(result.last_page)
-          setLinks(result.links)
+          setnextLinks(result.next_page_url)
+          setprevLinks(result.prev_page_url)
+          // setLinks(result.links)
           setcurrentpages(result.current_page)
 
         })
@@ -88,7 +110,7 @@ const HomePage = () => {
     <>
     
     <div>HomePage
-    <button onClick={logout} className="btn btn-secondary">Logout</button>
+    <button onClick={logoutuser} className="btn btn-secondary">Logout</button>
     </div>
     <div>
       <h4 style={{color: "red"}}>{successMessage}</h4>
