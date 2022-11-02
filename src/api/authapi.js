@@ -12,8 +12,8 @@ const instance = axios.create({
 export default {
     logout: () =>
     instance({
-        'method':'post',
-        'url':'/logout',
+        'method':'POST',
+        'url':'logout',
         'headers': {
             'content-type':'application/json',
             'Authorization': 'bearer '+localStorage.getItem('token')

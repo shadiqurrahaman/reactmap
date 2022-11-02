@@ -1,8 +1,9 @@
+
 const initialState = {
     token:''
   };
   
-  export const reducer = (state = initialState, action) => {
+  export const authreducer = (state = initialState, action) => {
     const newState = { ...state };
   
     switch (action.type) {
@@ -16,8 +17,8 @@ const initialState = {
         localStorage.removeItem('token')
         break;
     }
-   
+
     return newState;
   };
   
-  export default reducer;
+  export default authreducer;

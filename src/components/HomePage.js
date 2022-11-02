@@ -10,24 +10,23 @@
 import React,{useState,useEffect } from 'react'
 import GoogleMapReact from 'google-map-react';
 import {useNavigate } from 'react-router-dom';
-// import store, { removeToken } from '../store';
 import authapi from '../api/authapi';
 import placeapi from '../api/placeapi';
 import {useSelector,useDispatch } from 'react-redux';
-import { logout } from '../store/actions';
-import store from '../store';
+import { logout,getallPlace,getnextpage } from '../store/actions';
 
 
 
 const HomePage = () => {
+
       const navigate = useNavigate();
       const [place, setPlace] = useState("");
       const [searchplace, setSearchPlace] = useState("");
-      const [position, setposition] = useState([]);
-      const [nextLinks, setnextLinks] = useState('');
-      const [prevLinks, setprevLinks] = useState('');
-      const [pages, setpages] = useState("");
-      const [currentpages, setcurrentpages] = useState("");
+      // const [position, setposition] = useState([]);
+      // const [nextLinks, setnextLinks] = useState('');
+      // const [prevLinks, setprevLinks] = useState('');
+      // const [pages, setpages] = useState("");
+      // const [currentpages, setcurrentpages] = useState("");
       const [successMessage, setsuccessMessage] = useState("");
       const dispatch = useDispatch()
       const defaultProps = {
@@ -38,55 +37,36 @@ const HomePage = () => {
         zoom: 11
       };
 
-      // const selectedData = useSelector((state)=>{
-      //   if(state.token){
-      //     navigate("/")
-      //   }
-      // })
-      console.log("home")
-      console.log(store.getState())
 
-      const handlePage=(parama)=>{
-        var urlparma = ''
-        if(parama==='predious' && prevLinks!=null){
-          urlparma = prevLinks
-        }else if(parama==='next' && nextLinks!==null){
-          urlparma = nextLinks
+const position = useSelector((state)=>state.place.placeData)
+const next_page = useSelector((state)=>state.place.next_page)
+const pre_page = useSelector((state)=>state.place.previous_page)
+
+const handlePage=(parama)=>{
+        
+        if(parama==='predious' && pre_page!=null){
+          dispatch(getnextpage(pre_page))
+        }else if(parama==='next' && next_page!==null){
+          dispatch(getnextpage(next_page))
         }
-        if (urlparma!==''){
-        placeapi.placePaginate({url:urlparma})
-          .then((result)=>{
-                  setposition(result.data)
-                  setcurrentpages(result.current_page)
-                  setnextLinks(result.next_page_url)
-                  setprevLinks(result.prev_page_url)
-          })
-        }
+
       }
 
       const logoutuser = ()=>{
-        // dispatch({type:'REMOVE_TOKEN'})
-       
-        const data = authapi.logout();
-        console.log(data);
-        data.then((result)=>{
-          dispatch(logout())
-          navigate("/")
-        })
-
+        dispatch(logout(navigate))
       }
-      useEffect(() => {
-        const placeHistory = placeapi.getPlace({item:2})
-        placeHistory.then((result)=>{
-          setposition(result.data)
-          setpages(result.last_page)
-          setnextLinks(result.next_page_url)
-          setprevLinks(result.prev_page_url)
-          // setLinks(result.links)
-          setcurrentpages(result.current_page)
 
-        })
+
+      useEffect(() => {
+        
+        console.log(position)
+        if(position.length==0){
+
+          dispatch(getallPlace(2))
+        }
+        
       },[])
+
       const search = (event) => {
         event.preventDefault();
         setSearchPlace(place)       
@@ -96,6 +76,8 @@ const HomePage = () => {
       const handleSearch = (e)=>{
         setPlace(e.target.value)
     }
+
+
     const addplace = (e)=>{
       placeapi.addplace({'address':searchplace})
       .then((result)=>{
@@ -187,5 +169,6 @@ const Marker = props => {
     <div className="pin"></div>
   </>
 }
+
 
 export default HomePage

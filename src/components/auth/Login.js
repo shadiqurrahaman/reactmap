@@ -1,17 +1,19 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link,useNavigate } from 'react-router-dom'
 import { Formik,Form} from 'formik';
-// import store, { storeToken } from '../../store';
+
 import { TextFild } from './TextFild';
 import * as yup from 'yup';
-import authapi from '../../api/authapi';
-// import store from '../../store';
-import { setToken } from '../../store/saga';
+// import authapi from '../../api/authapi';
+
+import { setToken } from '../../store/auth.saga';
 import {useSelector,useDispatch } from 'react-redux';
 import { loginUser } from '../../store/actions';
 
 
 export const Login = () => {
+  
+const [token, setToken] = useState("")
   const [error,setError] = useState([]);
    const dispatch = useDispatch()
   const navigate = useNavigate();
@@ -21,25 +23,26 @@ export const Login = () => {
       password: yup.string().min(6,'Password is at least 6 charecter').required('Password is Required')
     }
   )
-  // const selectedData = useSelector((state)=>{
-  //   if(state.token){
-  //    console.log(state)
-  //   }
-  // })
 
+  const selectedData = useSelector((state)=>{
+    console.log("login")
+    console.log(state)
+   
+  })
+  
   const handleSubmit = async (values) => {
 
-    // dispatch(loginUser(values))
+    dispatch(loginUser(values,navigate))
   
-        const data = authapi.login({email:values.email,password:values.password});
-        data.then((result)=>{
-            // store.dispatch(storeToken(result.access_token));
-            dispatch(loginUser(result.access_token))
-            navigate("/homepage")
-        }).catch(err => {
-            console.log(err.response.data.error);
-            setError("Your username or password my be wrong");
-        });
+        // const data = authapi.login({email:values.email,password:values.password});
+        // data.then((result)=>{
+        //     // store.dispatch(storeToken(result.access_token));
+        //     dispatch(loginUser(result.access_token))
+        //     navigate("/homepage")
+        // }).catch(err => {
+        //     console.log(err.response.data.error);
+        //     setError("Your username or password my be wrong");
+        // });
   }
 
   const initialValues = {

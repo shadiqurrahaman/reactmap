@@ -8,11 +8,13 @@ import { ResetPassword } from './components/auth/ResetPassword';
 import HomePage from './components/HomePage';
 import { ProtectedRoutes } from './Routes/ProtectedRoutes';
 import { AuthProtectedRoute } from './Routes/AuthProtectedRoute';
+import history from './history';
 import './css/App.css';
 function App() {
     return (
-    <Router>
+      <Router history={history} >
       <Routes>
+
         <Route element={<AuthProtectedRoute/>}>
           <Route path="/" exact={true} element={<Login />} />
           <Route path="/reg" exact={true} element={<Register />} />
